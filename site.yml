@@ -1,0 +1,15 @@
+- name: Install falco
+  hosts: falco
+  become: true
+  roles:
+    - geerlingguy.nodejs
+    - geerlingguy.redis
+    - falco
+  tags: falco
+  environment:
+    DATABASE_URL: "{{ falco_db_url }}"
+    SECRET_KEY: "{{ falco_secret_key }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    nodejs_npm_global_packages:
+      - name: yarn
