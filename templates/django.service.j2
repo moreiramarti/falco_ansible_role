@@ -1,0 +1,20 @@
+[Unit]
+Description=Django Service
+After=network.target
+
+[Service]
+Type=simple
+User=falco
+WorkingDirectory=/code
+ExecStart=gunicorn --bind 0.0.0.0:8000 --chdir /code --workers 2 --access-logfile - --error-logfile - -c root/gunicorn.py root.wsgi:application
+Environment=CELERY_BROKER_URL=redis://127.0.0.1:6379/0
+Environment=SECRET_KEY={{ falco_secret_key }}
+Environment=DATABASE_URL={{ falco_db_url }}
+Environment=DISABLE_DATABASE_SSL_CHECK=1
+Environment=DB_CYPHER_KEY=fake
+Environment=DJANGO_SETTINGS_MODULE=root.settings.prod
+Environment=ALLOWED_HOST=falco.infra.{{ env }}.leboncoin.io
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+Type=simple
+User=falco
+WorkingDirectory=/code
+ExecStart=celery worker -A root.celery -B -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler -c 4 --pidfile=/var/run/celery/celery.pid
+Environment=CELERY_BROKER_URL=redis://127.0.0.1:6379/0
+Environment=SECRET_KEY={{ falco_secret_key }}
+Environment=DATABASE_URL={{ falco_db_url }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

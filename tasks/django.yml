@@ -1,0 +1,70 @@
+---
+- name: Correct python version selected
+  alternatives:
+    name: python
+    link: /usr/bin/python
+    path: /usr/bin/python3
+
+- name: Run django collectstatic
+  django_manage:
+    command: collectstatic
+    app_path: /code
+    settings: root.settings.prod
+
+- name: Run django migrate
+  django_manage:
+    command: migrate
+    app_path: /code
+    settings: root.settings.prod
+
+- name: Run django createcachetable
+  django_manage:
+    command: createcachetable
+    app_path: /code
+    settings: root.settings.prod
+
+- name: Check if admin_user is already created
+  stat:
+    path: /code/admin_user
+  register: admin_user
+
+- name: Run django create admin user
+  django_manage:
+    command: shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'noreply@noreply.com', 'admin')"
+    app_path: /code
+    settings: root.settings.prod
+  when: not admin_user.stat.exists
+  register: admin_created
+
+- name: Set admin_user file to prove it is created
+  file:
+    path: /code/admin_user
+    state: touch
+  when:
+    - admin_created|d(False) or admin_created.rc == 0
+
+- name: Check if periodic_tasks are already created
+  stat:
+    path: /code/periodic_tasks
+  register: periodic_tasks
+
+- name: Run django populate-periodic-tasks
+  django_manage:
+    command: populate-periodic-tasks
+    app_path: /code
+    settings: root.settings.prod
+  when: not periodic_tasks.stat.exists
+  register: periodic_tasks_created
+
+- name: Set periodic_tasks file to prove it is created
+  file:
+    path: /code/periodic_tasks
+    state: touch
+  when:
+    - periodic_tasks_created|d(False) or periodic_tasks_created.rc == 0
+
+- name: Install django service
+  template:
+    src: django.service.j2
+    dest: /etc/systemd/system/django.service
+  notify: Restart django

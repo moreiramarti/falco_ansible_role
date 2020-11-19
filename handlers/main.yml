@@ -1,0 +1,14 @@
+---
+- name: Restart celery
+  service:
+    name: celery
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+
+- name: Restart django
+  service:
+    name: django
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

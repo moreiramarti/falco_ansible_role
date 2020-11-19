@@ -1,0 +1,61 @@
+---
+- include_tasks: setup.yml
+- include_tasks: user.yml
+
+- name: Check if falco dir exists
+  stat:
+    path: /opt/falco-{{ falco_version }}
+  register: falco_dir
+
+- name: Get falco {{ falco_version }} package
+  unarchive:
+    src: https://github.com/theodo/falco/archive/{{ falco_version }}.tar.gz
+    dest: /opt
+    remote_src: yes
+  when: not falco_dir.stat.exists
+
+- name: Build falco
+  shell: /usr/local/lib/npm/bin/yarn install --pure-lockfile --ignore-scripts && /usr/local/lib/npm/bin/yarn build
+  args:
+    chdir: /opt/falco-{{ falco_version }}/frontend
+  when: not falco_dir.stat.exists
+
+- name: Ensures /code dir exists
+  file:
+    path: /code
+    state: directory
+
+- name: Copy falco backend files to /code
+  copy:
+    src: /opt/falco-{{ falco_version }}/backend/
+    dest: /code/
+    remote_src: yes
+    directory_mode: yes
+
+- name: Ensures /code/front/static/front dir exists
+  file:
+    path: /code/front/static/front
+    state: directory
+
+- name: Copy falco frontend files to /code/front/static/front
+  copy:
+    src: /opt/falco-{{ falco_version }}/frontend/build/
+    dest: /code/front/static/front
+    remote_src: yes
+    directory_mode: yes
+
+- name: Ensures /code/static dir exists
+  file:
+    path: /code/static
+    state: directory
+
+- include_tasks: django.yml
+
+- name: Set falco owner of /code
+  file:
+    path: /code
+    state: directory
+    owner: falco
+    recurse: yes
+
+- include_tasks: celery.yml

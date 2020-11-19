@@ -1,0 +1,36 @@
+---
+falco_version: 1.1.5
+pip_packages:
+  - argon2_cffi==19.1.0
+  - psycopg2-binary==2.8.2
+  - celery==4.3.1
+  - celery[redis]==4.3.1
+  - celery[sqs]==4.3.1
+  - dj-database-url==0.5.0
+  - django==3.0.7
+  - django[argon2]==3.0.7
+  - django-celery-beat==1.5.0
+  - django-cors-headers
+  - django-extensions==2.2.8
+  - django-fernet-fields==0.6
+  - django-heroku==0.3.1
+  - djangorestframework==3.11.0
+  - djangorestframework-simplejwt==4.4.0
+  - djoser==2.0.3
+  - drf-yasg==1.17.0
+  - factory-boy==2.12.0
+  - gunicorn
+  - ipython==7.9.0
+  - pipenv
+  - ptvsd==4.2.8
+  - pytz==2019.1
+  - redis
+  - requests==2.21.0
+  - whitenoise==5.0.1
+system_packages:
+  - gcc
+  - libcurl4-openssl-dev
+  - libffi-dev
+  - libpq-dev
+  - libssl-dev
+  - musl-dev

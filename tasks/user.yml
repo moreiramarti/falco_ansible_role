@@ -1,0 +1,5 @@
+---
+- name: Add falco user
+  user:
+    name: falco
+    shell: /bin/bash
